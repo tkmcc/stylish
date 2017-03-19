@@ -9,7 +9,8 @@ var viewSize = { width: 1920, height: 1080 };
 
 
 function complete(msg) {
-  system.stdout.write(JSON.stringify(msg));
+  console.log(JSON.stringify(msg));
+  
   phantom.exit();
 }
 
@@ -24,6 +25,8 @@ function uponWindowLoad() {
 }
 
 function uponPageOpen(status) {
+  console.log('uponPageOpen called with status=' + status);
+
   if (status !== 'success') {
     var msg = {
       status: 'error',
@@ -40,5 +43,7 @@ function uponPageOpen(status) {
 
 page.settings.userAgent = ua;
 page.viewportSize = viewSize;
+
+console.log('url=' + url);
 
 page.open(url, uponPageOpen);
