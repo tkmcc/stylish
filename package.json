@@ -1,0 +1,23 @@
+{
+  "name": "stylish",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkmcc/stylish.git"
+  },
+  "author": "Thomas McCormick",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tkmcc/stylish/issues"
+  },
+  "homepage": "https://github.com/tkmcc/stylish#readme",
+  "dependencies": {
+    "phantomjs-prebuilt": "^2.1.14",
+    "time": "^0.12.0"
+  }
+}

@@ -1,0 +1,13 @@
+version: 0.1
+phases:
+  install:
+    commands:
+      - npm install
+      - aws cloudformation package --template-file serverless.yaml
+                                   --s3-bucket significantbits 
+                                   --s3-prefix "stylish"
+                                   --output-template-file serverless-output.yaml
+artifacts:
+  type: zip
+  files:
+    - serverless-output.yaml
