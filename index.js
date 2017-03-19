@@ -2,7 +2,7 @@ const aws = require('aws-sdk');
 const phantomjs = require('phantomjs-prebuilt');
 
 exports.handler = function(event, context, callback) {
-  const phantom = phantomjs.exec('phjs-main.js');
+  const phantom = phantomjs.exec('phjs-main.js', 'http://google.com/');
 
   phantom.stdout.on('data', function(buf) {
     console.log('[STR] stdout "%s"', String(buf));
