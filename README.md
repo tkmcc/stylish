@@ -1,10 +1,12 @@
 # STYLISH :tophat:
 
-## SETUP
+## Setup
 
 Install prereqs for `palatte` on OSX:
 ```
-brew install pkg-config cairo pango libpng jpeg giflib
+brew update
+xcode-select --install
+brew install pkg-config cairo pango libpng jpeg giflib gobject-introspection pixman
 ```
 
 Follow this tutorial for automating deployment of Lambda-based applications:
