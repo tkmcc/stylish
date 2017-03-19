@@ -9,7 +9,7 @@ var viewSize = { width: 1920, height: 1080 };
 
 
 function complete(msg) {
-  system.stdout.write(JSON.stringify(msg.toString));
+  system.stdout.write(JSON.stringify(msg));
   phantom.exit();
 }
 
