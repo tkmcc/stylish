@@ -2,6 +2,8 @@ version: 0.1
 phases:
   install:
     commands:
+      - apt-get update -y
+      - apt-get install -y libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
       - npm install
       - aws cloudformation package --template-file serverless.yaml
                                    --s3-bucket significantbits 
