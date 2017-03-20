@@ -24,7 +24,7 @@ function parseJson(str) {
 }
 
 function parseMsg(raw) {
-  const msg = parseJson(raw);
+  const msg = parseJson(String(raw));
 
   if (msg && msg.status && msg.status === 'ok') {
     return msg;
@@ -72,13 +72,20 @@ function phantomHandler(complete, raw) {
   const screenshot = new Buffer(msg.body, 'base64');
 
   const png = new Png({ filterType: 4 });
-  png.parse(screenshot, png2palette.bind(complete, png));
+  png.parse(screenshot, (err, data) => {
+    if (err) {
+      complete(err);
+      return;
+    }
+
+    png2palette(complete, data);
+  });
 }
 
 exports.handler = function (event, context, callback) {
   const phantom = PhantomJs.exec('phjs-main.js', JSON.stringify(PHANTOM_ARGS));
 
-  phantom.stdout.on('data', msg => phantomHandler(callback, String(msg)));
-  phantom.stderr.on('data', err => callback(String(err)));
+  phantom.stdout.on('data', msg => phantomHandler(callback, msg));
+  phantom.stderr.on('data', err => callback(err));
   phantom.on('exit', code => console.log(`Phantom exited with ${code}`));
 };
