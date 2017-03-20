@@ -72,14 +72,10 @@ function phantomHandler(complete, raw) {
   const screenshot = new Buffer(msg.body, 'base64');
 
   const png = new Png({ filterType: 4 });
-  png.parse(screenshot, (err, data) => {
-    if (err) {
-      complete(err);
-      return;
-    }
+  png.on('error', complete);
+  png.on('parsed', png2palette.bind(this, complete));
 
-    png2palette(complete, data);
-  });
+  png.parse(screenshot);
 }
 
 exports.handler = function (event, context, callback) {
