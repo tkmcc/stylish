@@ -13,7 +13,7 @@ var viewSize = args.viewSize;
 
 
 function complete(msg) {
-  console.log(JSON.stringify(msg));
+  system.stdout.write(JSON.stringify(msg));
   phantom.exit();
 }
 

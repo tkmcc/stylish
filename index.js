@@ -1,3 +1,5 @@
+'use strict';
+
 const PhantomJs = require('phantomjs-prebuilt');
 const Png = require('pngjs').PNG;
 const RgbQuant = require('rgbquant');
@@ -25,7 +27,7 @@ function parseJson(str) {
 }
 
 function parseMsg(raw) {
-  const msg = parseJson(String(raw));
+  const msg = parseJson(raw);
 
   if (msg && msg.status && msg.status === 'ok') {
     return msg;
@@ -34,27 +36,28 @@ function parseMsg(raw) {
   return undefined;
 }
 
-function png2palette(complete, png) {
+function png2palette(complete, data) {
+  const png = new Uint32Array(data);
+
   // Turn array of {R, G, B, A} into array of 32 bit pixels
   const pixels = png.reduce((acc, val, index) => {
     const pos = (index % 4);
-    if (pos === 0) {
-      acc.push(0);
-    }
+    
+    const pixelIndex = ((index - pos) / 4);
+    const pixel = acc[pixelIndex];
 
-    const pixel = acc.pop();
-    const color = val & 0xff;
+    const color = png[index] & 0xff;
     const shiftBits = 8 * pos;
 
-    acc.push(pixel & (color << shiftBits));
+    const updated = pixel | (color << shiftBits);
+
+    acc.set([updated], pixelIndex);
 
     return acc;
-  }, []);
-
-  const u32pixels = new Uint32Array(pixels);
+  }, new Uint32Array(data.length / 4));
 
   const q = new RgbQuant({ colors: 8 });
-  q.sample(u32pixels);
+  q.sample(pixels);
 
   const palette = q.palette(true);
 
@@ -64,7 +67,7 @@ function png2palette(complete, png) {
 function phantomHandler(complete, raw) {
   const msg = parseMsg(raw);
   if (!msg) {
-    console.log('Phantom: "%s"', String(raw));
+    console.log('Phantom: "%s"', raw);
     return;
   }
 
@@ -73,17 +76,24 @@ function phantomHandler(complete, raw) {
 
   pngStream.end(screenshot);
 
-  const png = new Png({ filterType: 4 });
-  png.on('error', complete);
-  png.on('parsed', png2palette.bind(this, complete));
-
-  pngStream.pipe(png);
+  pngStream.pipe(new Png({ filterType: 4 }))
+    .on('error', complete)
+    .on('parsed', (data) => {
+      png2palette(complete, data);
+    });
 }
 
 exports.handler = function (event, context, callback) {
   const phantom = PhantomJs.exec('phjs-main.js', JSON.stringify(PHANTOM_ARGS));
+  let msgBuffer = '';
 
-  phantom.stdout.on('data', msg => phantomHandler(callback, msg));
+  phantom.stdout.on('data', (msg) => {
+    msgBuffer = msgBuffer.concat(String(msg));
+  });
   phantom.stderr.on('data', err => callback(err));
-  phantom.on('exit', code => console.log(`Phantom exited with ${code}`));
+  phantom.on('exit', (code) => {
+    console.log(`Phantom exited with ${code}`);
+
+    phantomHandler(callback, msgBuffer);
+  });
 };
