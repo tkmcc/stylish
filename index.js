@@ -42,7 +42,7 @@ function png2palette(complete, data) {
   // Turn array of {R, G, B, A} into array of 32 bit pixels
   const pixels = png.reduce((acc, val, index) => {
     const pos = (index % 4);
-    
+
     const pixelIndex = ((index - pos) / 4);
     const pixel = acc[pixelIndex];
 
@@ -50,7 +50,6 @@ function png2palette(complete, data) {
     const shiftBits = 8 * pos;
 
     const updated = pixel | (color << shiftBits);
-
     acc.set([updated], pixelIndex);
 
     return acc;
@@ -87,12 +86,16 @@ exports.handler = function (event, context, callback) {
   const phantom = PhantomJs.exec('phjs-main.js', JSON.stringify(PHANTOM_ARGS));
   let msgBuffer = '';
 
-  phantom.stdout.on('data', (msg) => {
-    msgBuffer = msgBuffer.concat(String(msg));
-  });
+  phantom.stdout.on('data', (msg) => { msgBuffer = msgBuffer.concat(String(msg)); });
   phantom.stderr.on('data', err => callback(err));
   phantom.on('exit', (code) => {
-    console.log(`Phantom exited with ${code}`);
+    if (code !== 0) console.log(`Phantom exited with ${code}`);
+  });
+
+  phantom.on('close', (code) => {
+    if (code !== 0) {
+      console.log(`Phantom closed with ${code}`);
+    }
 
     phantomHandler(callback, msgBuffer);
   });
