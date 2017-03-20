@@ -1,3 +1,5 @@
+/* eslint-env phantomjs */
+
 var system = require('system');
 var webpage = require('webpage');
 var page = webpage.create();

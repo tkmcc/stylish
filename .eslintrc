@@ -1,0 +1,19 @@
+{
+  "root": true,
+  "extends": "airbnb-base",
+  "rules": {
+    "strict": 0,
+    "global-require": 0,
+    "func-names": 0,
+    "no-shadow": 1,
+    "no-underscore-dangle": 1,
+    "no-unused-vars": 1,
+    "new-cap": 1,
+    "quotes": 1,
+    "camelcase": 1,
+  },
+  "env": {
+    "es6": true,
+    "node": true
+  }
+}
