@@ -34,10 +34,8 @@ function parseMsg(raw) {
 }
 
 function png2palette(complete, png) {
-  const rgb = png.data;
-
   // Turn array of {R, G, B, A} into array of 32 bit pixels
-  const pixels = rgb.reduce((acc, val, index) => {
+  const pixels = png.reduce((acc, val, index) => {
     const pos = (index % 4);
     if (pos === 0) {
       acc.push(0);
