@@ -5,6 +5,7 @@ phases:
       - apt-get update -y
       - apt-get install -y libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++
       - npm install
+      - cp ./node_modules/node-canvas-lambda-deps/src/* .
       - aws cloudformation package --template-file serverless.yaml
                                    --s3-bucket significantbits 
                                    --s3-prefix "stylish"

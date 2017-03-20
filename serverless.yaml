@@ -15,6 +15,3 @@ Resources:
           Properties:
             Path: /stylish
             Method: GET
-      Environment:
-        Variables:
-          PATH: $PATH:./node_modules/node-canvas-lambda-deps/src
