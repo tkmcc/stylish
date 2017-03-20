@@ -17,7 +17,7 @@ function complete(msg) {
   phantom.exit();
 }
 
-function uponWindowLoad() {
+function renderComplete() {
   var render = page.renderBase64('PNG');
   var msg = {
     status: 'ok',
@@ -38,8 +38,7 @@ function uponPageOpen(status) {
     return;
   }
 
-  // Wait an extra second for anything else to load
-  window.setTimeout(uponWindowLoad, 1000);
+  renderComplete();
 }
 
 page.settings.userAgent = ua;
