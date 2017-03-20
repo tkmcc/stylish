@@ -1,6 +1,7 @@
 const PhantomJs = require('phantomjs-prebuilt');
 const Png = require('pngjs').PNG;
 const RgbQuant = require('rgbquant');
+const Stream = require('stream');
 
 const PHANTOM_ARGS = {
   url: 'http://google.com/',
@@ -68,12 +69,15 @@ function phantomHandler(complete, raw) {
   }
 
   const screenshot = new Buffer(msg.body, 'base64');
+  const pngStream = new Stream.PassThrough();
+
+  pngStream.end(screenshot);
 
   const png = new Png({ filterType: 4 });
   png.on('error', complete);
   png.on('parsed', png2palette.bind(this, complete));
 
-  png.parse(screenshot);
+  pngStream.pipe(png);
 }
 
 exports.handler = function (event, context, callback) {
