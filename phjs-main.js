@@ -10,7 +10,6 @@ var viewSize = { width: 1920, height: 1080 };
 
 function complete(msg) {
   console.log(JSON.stringify(msg));
-  
   phantom.exit();
 }
 
@@ -18,19 +17,17 @@ function uponWindowLoad() {
   var render = page.renderBase64('PNG');
   var msg = {
     status: 'ok',
-    body: render
+    body: render,
   };
 
   complete(msg);
 }
 
 function uponPageOpen(status) {
-  console.log('uponPageOpen called with status=' + status);
-
   if (status !== 'success') {
     var msg = {
       status: 'error',
-      body: status
+      body: status,
     };
 
     complete(msg);
@@ -43,7 +40,5 @@ function uponPageOpen(status) {
 
 page.settings.userAgent = ua;
 page.viewportSize = viewSize;
-
-console.log('url=' + url);
 
 page.open(url, uponPageOpen);
