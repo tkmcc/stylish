@@ -17,9 +17,8 @@
   },
   "homepage": "https://github.com/tkmcc/stylish#readme",
   "dependencies": {
-    "canvas": "^1.6.5",
-    "node-canvas-lambda-deps": "^1.2.0",
     "phantomjs-prebuilt": "^2.1.14",
+    "pngjs": "^3.0.1",
     "rgbquant": "^1.1.2"
   },
   "devDependencies": {
