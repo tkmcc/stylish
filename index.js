@@ -44,7 +44,9 @@ function parseMsg(complete, raw) {
 function final(complete, palette) {
   const response = {
     statusCode: palette ? 200 : 500,
-    headers: { },
+    headers: {
+      'access-control-allow-origin': '*'
+    },
     body: palette ? JSON.stringify(palette) : '',
   };
 
