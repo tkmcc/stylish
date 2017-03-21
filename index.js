@@ -45,9 +45,9 @@ function final(complete, palette) {
   const response = {
     statusCode: palette ? 200 : 500,
     headers: {
-      'access-control-allow-origin': '*'
+      'access-control-allow-origin': '*',
     },
-    body: palette ? JSON.stringify({ palette: palette }) : '',
+    body: palette ? JSON.stringify({ palette }) : '',
   };
 
   complete(null, response);
@@ -118,7 +118,11 @@ exports.handler = function (event, context, callback) {
   const phantom = PhantomJs.exec('phjs-main.js', JSON.stringify(phantomArgs));
   let msgBuffer = '';
 
-  phantom.stdout.on('data', (msg) => { msgBuffer = msgBuffer.concat(String(msg)); });
+  phantom.stdout.on('data', (msg) => {
+    msgBuffer = msgBuffer.concat(String(msg));
+    phantomHandler(callback, msg);
+  });
+
   phantom.stderr.on('data', err => callback(err));
   phantom.on('exit', (code) => {
     if (code !== 0) console.log(`Phantom exited with ${code}`);
