@@ -40,7 +40,7 @@ function final(complete, palette) {
   const response = {
     statusCode: palette ? 200 : 500,
     headers: { },
-    body: palette ? JSON.stringify(palette) : { },
+    body: palette ? JSON.stringify(palette) : '',
   };
 
   complete(null, response);
@@ -95,6 +95,8 @@ function phantomHandler(complete, raw) {
 exports.handler = function (event, context, callback) {
   const phantom = PhantomJs.exec('phjs-main.js', JSON.stringify(PHANTOM_ARGS));
   let msgBuffer = '';
+
+  console.log(`Received event: ${JSON.stringify(event, null, 2)}`);
 
   phantom.stdout.on('data', (msg) => { msgBuffer = msgBuffer.concat(String(msg)); });
   phantom.stderr.on('data', err => callback(err));
