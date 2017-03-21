@@ -58,7 +58,9 @@ function png2palette(complete, data) {
   const q = new RgbQuant({ colors: 8 });
   q.sample(pixels);
 
-  const palette = q.palette(true);
+  const palette = q.palette(true).map(rgb => {
+    return `rgb(${rgb.join()})`;
+  });
 
   complete(null, palette);
 }
