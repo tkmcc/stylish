@@ -15,5 +15,5 @@ Resources:
         StylishApi:
           Type: Api
           Properties:
-            Path: /stylish?url={url}
+            Path: /stylish/{url}
             Method: GET
