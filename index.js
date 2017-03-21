@@ -4,9 +4,10 @@ const PhantomJs = require('phantomjs-prebuilt');
 const Png = require('pngjs').PNG;
 const RgbQuant = require('rgbquant');
 const Stream = require('stream');
+const UrlValidator = require('url-validator');
 
 const PHANTOM_ARGS = {
-  url: 'http://google.com/',
+  url: 'http://tkm.io/',
   viewSize: {
     width: 1920,
     height: 1080,
@@ -26,11 +27,15 @@ function parseJson(str) {
   return undefined;
 }
 
-function parseMsg(raw) {
+function parseMsg(complete, raw) {
   const msg = parseJson(raw);
 
-  if (msg && msg.status && msg.status === 'ok') {
-    return msg;
+  if (msg && msg.status && msg.body) {
+    if (msg.status === 'ok') {
+      return msg;
+    }
+
+    complete(`Error: "${msg.body}"`);
   }
 
   return undefined;
@@ -74,7 +79,7 @@ function png2palette(complete, data) {
 }
 
 function phantomHandler(complete, raw) {
-  const msg = parseMsg(raw);
+  const msg = parseMsg(complete, raw);
   if (!msg) {
     console.log('Phantom: "%s"', raw);
     return;
@@ -92,11 +97,24 @@ function phantomHandler(complete, raw) {
     });
 }
 
-exports.handler = function (event, context, callback) {
-  const phantom = PhantomJs.exec('phjs-main.js', JSON.stringify(PHANTOM_ARGS));
-  let msgBuffer = '';
+function urlFromEvent(event) {
+  if (!event || !event.queryStringParameters || !event.queryStringParameters.url) {
+    return false;
+  }
 
-  console.log(`Received event: ${JSON.stringify(event, null, 2)}`);
+  return UrlValidator(event.queryStringParameters.url);
+}
+
+exports.handler = function (event, context, callback) {
+  const urlParam = urlFromEvent(event);
+  if (!urlParam) {
+    callback('Bad URL');
+    return;
+  }
+
+  const phantomArgs = Object.assign({}, PHANTOM_ARGS, { url: urlParam });
+  const phantom = PhantomJs.exec('phjs-main.js', JSON.stringify(phantomArgs));
+  let msgBuffer = '';
 
   phantom.stdout.on('data', (msg) => { msgBuffer = msgBuffer.concat(String(msg)); });
   phantom.stderr.on('data', err => callback(err));
@@ -105,9 +123,7 @@ exports.handler = function (event, context, callback) {
   });
 
   phantom.on('close', (code) => {
-    if (code !== 0) {
-      console.log(`Phantom closed with ${code}`);
-    }
+    if (code !== 0) console.log(`Phantom closed with ${code}`);
 
     phantomHandler(callback, msgBuffer);
   });

@@ -20,7 +20,8 @@
   "dependencies": {
     "phantomjs-prebuilt": "^2.1.14",
     "pngjs": "^3.0.1",
-    "rgbquant": "^1.1.2"
+    "rgbquant": "^1.1.2",
+    "url-validator": "^2.0.3"
   },
   "devDependencies": {
     "eslint": "^3.18.0",
