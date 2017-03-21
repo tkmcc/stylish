@@ -9,7 +9,7 @@ Resources:
       Handler: index.handler
       Runtime: nodejs4.3
       MemorySize: 1024
-      Timeout: 10
+      Timeout: 25
       CodeUri: .
       Events:
         StylishApi:
