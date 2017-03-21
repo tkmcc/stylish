@@ -40,7 +40,7 @@ function final(complete, palette) {
   const response = {
     statusCode: palette ? 200 : 500,
     headers: { },
-    body: palette,
+    body: palette ? JSON.stringify(palette) : { },
   };
 
   complete(null, response);
