@@ -47,7 +47,7 @@ function final(complete, palette) {
     headers: {
       'access-control-allow-origin': '*'
     },
-    body: palette ? JSON.stringify(palette) : '',
+    body: palette ? JSON.stringify({ palette: palette }) : '',
   };
 
   complete(null, response);
@@ -75,7 +75,7 @@ function png2palette(complete, data) {
   const q = new RgbQuant({ colors: 8 });
   q.sample(pixels);
 
-  const palette = q.palette(true).map(rgb => `rgb(${rgb.join()})`);
+  const palette = q.palette(true);
 
   final(complete, palette);
 }
