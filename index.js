@@ -38,9 +38,9 @@ function parseMsg(raw) {
 
 function final(complete, palette) {
   const response = {
-    "statusCode": palette ? 200 : 500, 
-    "headers": { },
-    "body": palette ? palette : null
+    statusCode: palette ? 200 : 500,
+    headers: { },
+    body: palette,
   };
 
   complete(null, response);
@@ -68,9 +68,7 @@ function png2palette(complete, data) {
   const q = new RgbQuant({ colors: 8 });
   q.sample(pixels);
 
-  const palette = q.palette(true).map(rgb => {
-    return `rgb(${rgb.join()})`;
-  });
+  const palette = q.palette(true).map(rgb => `rgb(${rgb.join()})`);
 
   final(complete, palette);
 }
