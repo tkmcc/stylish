@@ -1,7 +1,7 @@
 const index = require('./index');
 
 function callback(err, msg) {
-  console.log(`callback: err=${err}, msg=${msg}`);
+  console.log(`callback: err=${err}, msg=${JSON.stringify(msg)}`);
 }
 
 function run() {

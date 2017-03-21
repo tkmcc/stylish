@@ -36,6 +36,16 @@ function parseMsg(raw) {
   return undefined;
 }
 
+function final(complete, palette) {
+  const response = {
+    "statusCode": palette ? 200 : 500, 
+    "headers": { },
+    "body": palette ? palette : null
+  };
+
+  complete(null, response);
+}
+
 function png2palette(complete, data) {
   const png = new Uint32Array(data);
 
@@ -62,7 +72,7 @@ function png2palette(complete, data) {
     return `rgb(${rgb.join()})`;
   });
 
-  complete(null, palette);
+  final(complete, palette);
 }
 
 function phantomHandler(complete, raw) {
