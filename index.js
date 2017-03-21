@@ -50,6 +50,8 @@ function final(complete, palette) {
     body: palette ? JSON.stringify({ palette }) : '',
   };
 
+  console.log(`Palette: ${palette ? JSON.stringify({ palette }) : 'error'}`);
+
   complete(null, response);
 }
 
@@ -113,6 +115,8 @@ exports.handler = function (event, context, callback) {
     callback('Bad URL');
     return;
   }
+
+  console.log(`URL: ${urlParam}`);
 
   const phantomArgs = Object.assign({}, PHANTOM_ARGS, { url: urlParam });
   const phantom = PhantomJs.exec('phjs-main.js', JSON.stringify(phantomArgs));
