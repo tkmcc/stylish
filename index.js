@@ -9,8 +9,8 @@ const UrlValidator = require('url-validator');
 const PHANTOM_ARGS = {
   url: 'http://tkm.io/',
   viewSize: {
-    width: 1920,
-    height: 1080,
+    width: 1366,
+    height: 768,
   },
 };
 
