@@ -1,25 +1,34 @@
 /* eslint-env phantomjs */
 
-var system = require('system');
-var webpage = require('webpage');
+const system = require('system');
+const webpage = require('webpage');
 
-var page = webpage.create();
-var ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) ' +
+const page = webpage.create();
+const ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) ' +
          'AppleWebKit/537.36 (KHTML, like Gecko) ' +
          'Chrome/56.0.2924.87 Safari/537.36';
-var args = JSON.parse(system.args[1]);
-var url = args.url;
-var viewSize = args.viewSize;
+const args = JSON.parse(system.args[1]);
+const url = args.url;
+const viewSize = args.viewSize;
+const ws = new WebSocket(args.wss);
 
+function prepareWs() {
+  ws.onerror = function (error) {
+    console.log('WebSocket: ' + error);
+    phantom.exit();
+  };
+}
 
 function complete(msg) {
-  system.stdout.write(JSON.stringify(msg));
+  ws.send(JSON.stringify(msg));
+  ws.close(0);
+
   phantom.exit();
 }
 
-function renderComplete() {
-  var render = page.renderBase64('PNG');
-  var msg = {
+function renderPage() {
+  const render = page.renderBase64('PNG');
+  const msg = {
     status: 'ok',
     body: render,
   };
@@ -28,18 +37,20 @@ function renderComplete() {
 }
 
 function uponPageOpen(status) {
-  if (status !== 'success') {
-    var msg = {
-      status: 'error',
-      body: status,
-    };
-
-    complete(msg);
+  if (status === 'success') {
+    renderPage();
     return;
   }
 
-  renderComplete();
+  const msg = {
+    status: 'error',
+    body: status,
+  };
+
+  complete(msg);
 }
+
+prepareWs();
 
 page.settings.userAgent = ua;
 page.viewportSize = viewSize;

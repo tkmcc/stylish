@@ -18,10 +18,13 @@
   },
   "homepage": "https://github.com/tkmcc/stylish#readme",
   "dependencies": {
+    "bufferutil": "^3.0.0",
     "phantomjs-prebuilt": "^2.1.14",
     "pngjs": "^3.0.1",
     "rgbquant": "^1.1.2",
-    "url-validator": "^2.0.3"
+    "url-validator": "^2.0.3",
+    "utf-8-validate": "^3.0.1",
+    "ws": "^2.2.2"
   },
   "devDependencies": {
     "eslint": "^3.18.0",

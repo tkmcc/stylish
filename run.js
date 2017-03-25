@@ -7,8 +7,8 @@ function callback(err, msg) {
 function run() {
   const event = {
     queryStringParameters: {
-      url: 'http://tkm.io/'
-    }
+      url: 'http://tkm.io/',
+    },
   };
   const context = {};
   index.handler(event, context, callback);
