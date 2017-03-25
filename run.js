@@ -10,7 +10,9 @@ function run() {
       url: 'http://tkm.io/',
     },
   };
-  const context = {};
+  const context = {
+    getRemainingTimeInMillis: () => 0,
+  };
   index.handler(event, context, callback);
 }
 

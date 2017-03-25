@@ -11,14 +11,15 @@ const WebSocket = require('ws');
 
 const WEBSOCKET_URL = {
   protocol: 'ws:',
+  slashes: true,
   hostname: 'localhost',
   port: 2048 + ~~(Math.random() * 4096),
-  path: '/stylish-ws'
+  pathname: '/stylish-ws'
 };
 
 const DEFAULT_URL = 'http://tkm.io/';
 const PHANTOM_ARGS = {
-  wss: WEBSOCKET_URL.toString(),
+  wss: Url.format(WEBSOCKET_URL),
   url: DEFAULT_URL,
   viewSize: {
     width: 1366,
@@ -70,6 +71,8 @@ function finalize(palette) {
 }
 
 function png2palette(data) {
+  lmk.emit('time', 'Begin png2palette');
+
   const png = new Uint32Array(data);
 
   // Turn array of {R, G, B, A} into array of 32 bit pixels
@@ -96,8 +99,12 @@ function png2palette(data) {
     return acc;
   }, new Uint32Array(data.length / 4));
 
+  lmk.emit('time', 'Complete png2palette');
+
   const q = new RgbQuant({ colors: 8 });
   q.sample(pixels);
+
+  lmk.emit('time', 'Complete RgbQuant');
 
   const palette = q.palette(true);
 
@@ -124,12 +131,18 @@ function urlFromEvent(event) {
 }
 
 function prepareWss() {
-  const wss = new WebSocket.Server({ path: WEBSOCKET_URL.path, port: WEBSOCKET_URL.port });
+  console.log(`WebSocket URL: ${PHANTOM_ARGS.wss}`);
+
+  const wss = new WebSocket.Server({
+    port: WEBSOCKET_URL.port,
+    pathname: WEBSOCKET_URL.path,
+  });
 
   wss.on('connection', (ws) => {
     ws.on('message', (raw) => {
       const msg = parseMsg(raw);
       if (msg) {
+        lmk.emit('time', 'Got message');
         phantomHandler(msg);
       }
     });
@@ -150,9 +163,15 @@ exports.handler = function (event, context, callback) {
   lmk.on('complete', (opt) => {
     console.log(`complete: ${JSON.stringify(opt)}`);
     wss.close();
-    
+
     callback(opt.err || null, opt.result || null);
   });
+
+  lmk.on('time', (msg) => {
+    console.log(`[${context.getRemainingTimeInMillis()}] ${msg}`)
+  });
+
+  lmk.emit('time', 'Begin');
 
   const urlParam = urlFromEvent(event);
   console.log(`URL: ${urlParam}`);

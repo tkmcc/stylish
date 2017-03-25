@@ -14,7 +14,7 @@ const ws = new WebSocket(args.wss);
 
 function prepareWs() {
   ws.onerror = function (error) {
-    console.log('WebSocket: ' + error);
+    console.log('WebSocket: ' + JSON.stringify(error));
     phantom.exit();
   };
 }
