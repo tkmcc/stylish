@@ -21,12 +21,6 @@ const PHANTOM_ARGS = {
 };
 
 const lmk = new EventEmitter();
-let complete;
-
-lmk.on('complete', (opt) => {
-  console.log(`complete: ${JSON.stringify(opt)}`);
-  complete(opt.err || null, opt.result || null);
-});
 
 function parseJson(str) {
   try {
@@ -142,7 +136,12 @@ function prepareWss() {
 }
 
 exports.handler = function (event, context, callback) {
-  complete = callback;
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  lmk.on('complete', (opt) => {
+    console.log(`complete: ${JSON.stringify(opt)}`);
+    callback(opt.err || null, opt.result || null);
+  });
 
   prepareWss();
 
