@@ -9,10 +9,16 @@ const Url = require('url');
 const UrlValidator = require('url-validator');
 const WebSocket = require('ws');
 
-const WEBSOCKET_URL = 'ws://localhost:2017/stylish-ws';
+const WEBSOCKET_URL = {
+  protocol: 'ws:',
+  hostname: 'localhost',
+  port: 2048 + ~~(Math.random() * 4096),
+  path: '/stylish-ws'
+};
+
 const DEFAULT_URL = 'http://tkm.io/';
 const PHANTOM_ARGS = {
-  wss: WEBSOCKET_URL,
+  wss: WEBSOCKET_URL.toString(),
   url: DEFAULT_URL,
   viewSize: {
     width: 1366,
@@ -118,8 +124,7 @@ function urlFromEvent(event) {
 }
 
 function prepareWss() {
-  const wssUrl = Url.parse(WEBSOCKET_URL);
-  const wss = new WebSocket.Server({ port: parseInt(wssUrl.port, 10) });
+  const wss = new WebSocket.Server({ path: WEBSOCKET_URL.path, port: WEBSOCKET_URL.port });
 
   wss.on('connection', (ws) => {
     ws.on('message', (raw) => {
@@ -133,17 +138,21 @@ function prepareWss() {
       // Projeto completo
     });
   });
+
+  return wss;
 }
 
 exports.handler = function (event, context, callback) {
   context.callbackWaitsForEmptyEventLoop = false;
 
+  const wss = prepareWss();
+
   lmk.on('complete', (opt) => {
     console.log(`complete: ${JSON.stringify(opt)}`);
+    wss.close();
+    
     callback(opt.err || null, opt.result || null);
   });
-
-  prepareWss();
 
   const urlParam = urlFromEvent(event);
   console.log(`URL: ${urlParam}`);
