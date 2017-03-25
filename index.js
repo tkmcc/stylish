@@ -9,17 +9,18 @@ const Url = require('url');
 const UrlValidator = require('url-validator');
 const WebSocket = require('ws');
 
-const WEBSOCKET_URL = {
+const WEBSOCKET_URL_OBJ = {
   protocol: 'ws:',
   slashes: true,
   hostname: 'localhost',
   port: 2048 + ~~(Math.random() * 4096),
-  pathname: '/stylish-ws'
+  pathname: '/stylish-ws',
 };
 
+const WEBSOCKET_URL = Url.format(WEBSOCKET_URL_OBJ);
 const DEFAULT_URL = 'http://tkm.io/';
 const PHANTOM_ARGS = {
-  wss: Url.format(WEBSOCKET_URL),
+  wss: WEBSOCKET_URL,
   url: DEFAULT_URL,
   viewSize: {
     width: 1366,
@@ -85,13 +86,15 @@ function png2palette(data) {
     const color = png[index] & 0xff;
     const shiftBits = 8 * pos;
 
-    // Example for group [0xAA, 0x12, 0x23, 0x10]
-    // pos = 2
-    // color = 0x23
-    // shiftBits = 8 * 2 = 16
-    // (color << shiftBits) = 0x00230000
-    //                pixel = 0x000012AA
-    //              updated = 0x002312AA
+    /**
+     * Example for group [0xAA, 0x12, 0x23, 0x10]
+     * pos = 2
+     * color = 0x23
+     * shiftBits = 8 * 2 = 16
+     * (color << shiftBits) = 0x00230000
+     *                pixel = 0x000012AA
+     *              updated = 0x002312AA
+     **/
 
     const updated = pixel | (color << shiftBits);
     acc.set([updated], pixelIndex);
@@ -134,15 +137,18 @@ function prepareWss() {
   console.log(`WebSocket URL: ${PHANTOM_ARGS.wss}`);
 
   const wss = new WebSocket.Server({
-    port: WEBSOCKET_URL.port,
-    pathname: WEBSOCKET_URL.path,
+    port: WEBSOCKET_URL_OBJ.port,
+    pathname: WEBSOCKET_URL_OBJ.path,
   });
 
   wss.on('connection', (ws) => {
     ws.on('message', (raw) => {
       const msg = parseMsg(raw);
       if (msg) {
+        ws.close();
+
         lmk.emit('time', 'Got message');
+
         phantomHandler(msg);
       }
     });
@@ -156,9 +162,12 @@ function prepareWss() {
 }
 
 exports.handler = function (event, context, callback) {
+  // Don't wait for an empty event loop to exit --
+  //   we want to terminate immediately when we call callback()
   context.callbackWaitsForEmptyEventLoop = false;
 
   const wss = prepareWss();
+  let timer = context.getRemainingTimeInMillis();
 
   lmk.on('complete', (opt) => {
     console.log(`complete: ${JSON.stringify(opt)}`);
@@ -168,7 +177,9 @@ exports.handler = function (event, context, callback) {
   });
 
   lmk.on('time', (msg) => {
-    console.log(`[${context.getRemainingTimeInMillis()}] ${msg}`)
+    const ms = context.getRemainingTimeInMillis();
+    console.log(`[${ms}: -${timer - ms}] ${msg}`);
+    timer = ms;
   });
 
   lmk.emit('time', 'Begin');
