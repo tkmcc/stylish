@@ -97,7 +97,7 @@ function png2palette(data) {
      **/
 
     const updated = pixel | (color << shiftBits);
-    acc.set([updated], pixelIndex);
+    acc.fill(updated, pixelIndex, pixelIndex + 1);
 
     return acc;
   }, new Uint32Array(data.length / 4));
