@@ -6,14 +6,21 @@ function callback(err, msg) {
 }
 
 function run() {
+  const LAMBDA_EXECUTION_TIMEOUT_MS = 30 * 1000; // 30 second timeout
+  const now = Date.now();
+
   const event = {
     queryStringParameters: {
       url: 'http://tkm.io/',
     },
   };
+
   const context = {
-    getRemainingTimeInMillis: () => 0,
+    getRemainingTimeInMillis: () => {
+      return (LAMBDA_EXECUTION_TIMEOUT_MS - (Date.now() - now));
+    },
   };
+
   index.handler(event, context, callback);
 }
 
