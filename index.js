@@ -104,12 +104,15 @@ function png2palette(data) {
 
   lmk.emit('time', 'Complete png2palette');
 
-  const q = new RgbQuant({ colors: 8 });
+  const q = new RgbQuant({
+    method: 1,
+    colors: 8,
+  });
   q.sample(pixels);
 
   lmk.emit('time', 'Complete RgbQuant');
 
-  const palette = q.palette(true);
+  const palette = q.palette(true, true);
 
   finalize(palette);
 }
