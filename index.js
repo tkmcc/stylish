@@ -77,14 +77,19 @@ function png2palette(data) {
   const png = new Uint32Array(data);
 
   // Turn array of {R, G, B, A} into array of 32 bit pixels
-  const pixels = png.reduce((acc, val, index) => {
-    const pos = (index % 4);
+  // Using a `.forEach` instead of `.reduce` cuts processing time in half,
+  // plus it saves memory :D
+  const pixels = new Uint32Array(data.length / 4);
+  png.forEach((val, index) => {
+    const rgbPos = (index % 4);
 
-    const pixelIndex = ((index - pos) / 4);
-    const pixel = acc[pixelIndex];
+    const pixelIndex = ((index - rgbPos) / 4);
+    const pixel = pixels[pixelIndex];
 
     const color = png[index] & 0xff;
-    const shiftBits = 8 * pos;
+    const shiftBits = 8 * rgbPos;
+
+    const updated = pixel | (color << shiftBits);
 
     /**
      * Example for group [0xAA, 0x12, 0x23, 0x10]
@@ -96,11 +101,8 @@ function png2palette(data) {
      *              updated = 0x002312AA
      **/
 
-    const updated = pixel | (color << shiftBits);
-    acc.fill(updated, pixelIndex, pixelIndex + 1);
-
-    return acc;
-  }, new Uint32Array(data.length / 4));
+    pixels[pixelIndex] = updated;
+  });
 
   lmk.emit('time', 'Complete png2palette');
 
@@ -108,6 +110,7 @@ function png2palette(data) {
     method: 1,
     colors: 8,
   });
+
   q.sample(pixels);
 
   lmk.emit('time', 'Complete RgbQuant');

@@ -3,6 +3,7 @@ phases:
   install:
     commands:
       - npm install
+      - find ./node_modules/* -mtime +10950 -exec touch {} \;
       - aws cloudformation package --template-file serverless.yaml
                                    --s3-bucket significantbits 
                                    --s3-prefix "stylish"
