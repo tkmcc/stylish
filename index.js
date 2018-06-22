@@ -57,7 +57,16 @@ function parseMsg(raw) {
   return undefined;
 }
 
-function finalize(palette) {
+function finalize(computedPalette) {
+  const palette = (computedPalette || []).filter((rgb) => {
+    // Filter out #000000 (black) and #ffffff (white),
+    // and only return 6 values.
+    const [r, g, b] = rgb;
+
+    return (!(r === 255 && g === 255 && b === 255) &&
+            !(r === 0 && g === 0 && b === 0));
+  }).slice(0, 6);
+
   const response = {
     statusCode: palette ? 200 : 500,
     headers: {
@@ -113,9 +122,11 @@ function png2palette(data) {
 
   q.sample(pixels);
 
-  lmk.emit('time', 'Complete RgbQuant');
+  lmk.emit('time', 'Complete RgbQuant.sample');
 
   const palette = q.palette(true, true);
+
+  lmk.emit('time', 'Complete RgbQuant.palette');
 
   finalize(palette);
 }
